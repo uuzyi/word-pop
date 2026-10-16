@@ -14,9 +14,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            min-height: 100svh;
             margin: 0;
             padding: 20px 0;
+            overflow-x: hidden;
+            overscroll-behavior: none;
         }
 
         .game-container {
@@ -28,6 +30,9 @@
             text-align: center;
             width: 90%;
             max-width: 380px;
+            max-height: calc(100svh - 40px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         h1 {
@@ -701,9 +706,6 @@
 
         userInput.value = "";
 
-        userInput.focus();
-
-
         nextQuestion();
 
 
@@ -848,8 +850,6 @@
         );
 
 
-        userInput.focus();
-
     }
 
 
@@ -941,8 +941,6 @@
 
         }
 
-
-        userInput.focus();
 
     }
 
@@ -1151,11 +1149,7 @@
          * 顯示「重新開始」按鈕
          */
 
-        setTimeout(function() {
-
-            showLevelSelectAfterGame();
-
-        }, 1200);
+        // 遊戲結束後不自動跳回選關卡，讓玩家自己點「回到關卡選擇」
 
     }
 

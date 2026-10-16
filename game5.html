@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Pop 單字戳戳樂</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            text-align: center;
+            width: 90%;
+            max-width: 380px;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        /* =========================
+           關卡選擇
+        ========================= */
+        .level-select {
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .level-select h2 {
+            font-size: 18px;
+            margin: 0 0 12px 0;
+        }
+
+        .level-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .level-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .easy-btn {
+            background: #55efc4;
+            color: #2d3436;
+        }
+
+        .medium-btn {
+            background: #ffeaa7;
+            color: #2d3436;
+        }
+
+        .hard-btn {
+            background: #ff7675;
+            color: white;
+        }
+
+        .level-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .level-btn.selected {
+            border: 3px solid white;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(255,255,255,0.6);
+        }
+
+        /* =========================
+           遊戲內容
+        ========================= */
+        .game-area {
+            display: none;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .timer-bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .timer-bar {
+            width: 100%;
+            height: 100%;
+            background: #55efc4;
+            transition: width 1s linear, background-color 0.5s;
+        }
+
+        .level-badge {
+            color: #ffeaa7;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .combo-badge {
+            color: #55efc4;
+            font-size: 14px;
+            font-weight: bold;
+            height: 18px;
+            margin-bottom: 5px;
+        }
+
+        .word-card {
+            background: #fff;
+            color: #2d3436;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        input[type="text"] {
+            width: 85%;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #00b894;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #55efc4;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hint-btn {
+            background: #fdcb6e;
+            color: #2d3436;
+        }
+
+        .hint-btn:hover {
+            background: #ffeaa7;
+        }
+
+        .speak-btn {
+            background: #e17055;
+            color: white;
+        }
+
+        .speak-btn:hover {
+            background: #fab1a0;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            margin-top: 5px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.35);
+        }
+
+        .message {
+            margin-top: 5px;
+            font-size: 14px;
+            height: 20px;
+        }
+
+        .high-score {
+            margin-top: 10px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .review-box {
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 13px;
+            display: none;
+        }
+
+        .review-box h3 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            text-align: center;
+            color: #ffeaa7;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 5px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="game-container">
+
+    <h1>單字戳戳樂</h1>
+    <p class="subtitle">開始學英文吧！</p>
+
+    <!-- =========================
+         關卡選擇畫面
+    ========================= -->
+    <div class="level-select" id="level-select">
+
+        <h2>請選擇關卡</h2>
+
+        <div class="level-buttons">
+
+            <button
+                class="level-btn easy-btn"
+                id="easy-level-btn"
+                type="button">
+                🟢 簡單
+            </button>
+
+            <button
+                class="level-btn medium-btn"
+                id="medium-level-btn"
+                type="button">
+                🟡 中等
+            </button>
+
+            <button
+                class="level-btn hard-btn"
+                id="hard-level-btn"
+                type="button">
+                🔴 困難
+            </button>
+
+        </div>
+
+        <div style="margin-top:15px;">
+            <button id="start-btn" type="button">
+                開始遊戲
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         遊戲畫面
+    ========================= -->
+    <div class="game-area" id="game-area">
+
+        <div class="stats">
+            <div>
+                分數:
+                <span id="score">0</span>
+            </div>
+
+            <div>
+                時間:
+                <span id="timer">30</span>秒
+            </div>
+        </div>
+
+        <div class="timer-bar-container">
+            <div
+                class="timer-bar"
+                id="timer-bar">
+            </div>
+        </div>
+
+        <div
+            class="level-badge"
+            id="level-display">
+            難度：簡單
+        </div>
+
+        <div
+            class="combo-badge"
+            id="combo-display">
+        </div>
+
+        <div
+            class="word-card"
+            id="word-display">
+            準備開始
+        </div>
+
+        <input
+            type="text"
+            id="user-input"
+            placeholder="在此輸入英文..."
+            disabled
+            autocomplete="off">
+
+        <div class="btn-group">
+
+            <button
+                id="speak-btn"
+                class="speak-btn"
+                type="button">
+                🔊 聽發音
+            </button>
+
+            <button
+                id="hint-btn"
+                class="hint-btn"
+                type="button">
+                提示 (2)
+            </button>
+
+        </div>
+
+        <div
+            class="message"
+            id="message">
+        </div>
+
+        <div
+            class="review-box"
+            id="review-box">
+
+            <h3>練習過的單字</h3>
+
+            <div id="review-list"></div>
+
+        </div>
+
+        <div class="high-score">
+            最高紀錄:
+            <span id="high-score">0</span>
+        </div>
+
+        <button
+            class="back-btn"
+            id="back-btn"
+            type="button">
+            ↩ 回到關卡選擇
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* ========================================
+       三個難度的單字
+    ======================================== */
+
+    const easyWords = [
+        { chinese: "蘋果", english: "apple" },
+        { chinese: "貓", english: "cat" },
+        { chinese: "狗", english: "dog" },
+        { chinese: "水", english: "water" },
+        { chinese: "書本", english: "book" },
+        { chinese: "太陽", english: "sun" },
+        { chinese: "月亮", english: "moon" },
+        { chinese: "車子", english: "car" }
+    ];
+
+    const mediumWords = [
+        { chinese: "香蕉", english: "banana" },
+        { chinese: "學校", english: "school" },
+        { chinese: "朋友", english: "friend" },
+        { chinese: "音樂", english: "music" },
+        { chinese: "快樂", english: "happy" },
+        { chinese: "飛機", english: "airplane" }
+    ];
+
+    const hardWords = [
+        { chinese: "電腦", english: "computer" },
+        { chinese: "字典", english: "dictionary" },
+        { chinese: "環境", english: "environment" },
+        { chinese: "溫度", english: "temperature" },
+        { chinese: "經驗", english: "experience" },
+        { chinese: "政府", english: "government" },
+        { chinese: "科學家", english: "scientist" },
+        { chinese: "技術", english: "technology" }
+    ];
+
+
+    /* ========================================
+       遊戲變數
+    ======================================== */
+
+    let score = 0;
+    let timeLeft = 30;
+    let timerInterval = null;
+
+    let currentWord = {};
+
+    let isPlaying = false;
+
+    let combo = 0;
+
+    let activePool = [];
+    let usedPool = [];
+
+    let hintLevel = 0;
+
+    let practicedWords = [];
+
+    // 使用者目前選擇的難度
+    let selectedLevel = "";
+
+
+    /* ========================================
+       DOM 元素
+    ======================================== */
+
+    const scoreDisplay =
+        document.getElementById("score");
+
+    const timerDisplay =
+        document.getElementById("timer");
+
+    const timerBar =
+        document.getElementById("timer-bar");
+
+    const wordDisplay =
+        document.getElementById("word-display");
+
+    const userInput =
+        document.getElementById("user-input");
+
+    const startBtn =
+        document.getElementById("start-btn");
+
+    const hintBtn =
+        document.getElementById("hint-btn");
+
+    const speakBtn =
+        document.getElementById("speak-btn");
+
+    const message =
+        document.getElementById("message");
+
+    const levelDisplay =
+        document.getElementById("level-display");
+
+    const comboDisplay =
+        document.getElementById("combo-display");
+
+    const highScoreDisplay =
+        document.getElementById("high-score");
+
+    const reviewBox =
+        document.getElementById("review-box");
+
+    const reviewList =
+        document.getElementById("review-list");
+
+    const levelSelect =
+        document.getElementById("level-select");
+
+    const gameArea =
+        document.getElementById("game-area");
+
+    const backBtn =
+        document.getElementById("back-btn");
+
+    const easyLevelBtn =
+        document.getElementById("easy-level-btn");
+
+    const mediumLevelBtn =
+        document.getElementById("medium-level-btn");
+
+    const hardLevelBtn =
+        document.getElementById("hard-level-btn");
+
+
+    /* ========================================
+       最高分
+    ======================================== */
+
+    let highScore =
+        localStorage.getItem("wordPopHighScore") || 0;
+
+    highScoreDisplay.textContent = highScore;
+
+
+    /* ========================================
+       選擇難度
+    ======================================== */
+
+    easyLevelBtn.addEventListener("click", function() {
+
+        selectLevel("easy");
+
+    });
+
+
+    mediumLevelBtn.addEventListener("click", function() {
+
+        selectLevel("medium");
+
+    });
+
+
+    hardLevelBtn.addEventListener("click", function() {
+
+        selectLevel("hard");
+
+    });
+
+
+    function selectLevel(level) {
+
+        selectedLevel = level;
+
+        // 清除所有選取狀態
+        easyLevelBtn.classList.remove("selected");
+        mediumLevelBtn.classList.remove("selected");
+        hardLevelBtn.classList.remove("selected");
+
+
+        // 加上目前選取的樣式
+        if (level === "easy") {
+
+            easyLevelBtn.classList.add("selected");
+
+        }
+
+        else if (level === "medium") {
+
+            mediumLevelBtn.classList.add("selected");
+
+        }
+
+        else if (level === "hard") {
+
+            hardLevelBtn.classList.add("selected");
+
+        }
+
+    }
+
+
+    /* ========================================
+       開始遊戲
+    ======================================== */
+
+    startBtn.addEventListener("click", startGame);
+
+
+    function startGame() {
+
+        // 如果還沒有選擇難度
+        if (!selectedLevel) {
+
+            alert("請先選擇一個關卡！");
+
+            return;
+
+        }
+
+
+        score = 0;
+
+        combo = 0;
+
+        timeLeft = 30;
+
+        isPlaying = true;
+
+        hintLevel = 0;
+
+        practicedWords = [];
+
+        usedPool = [];
+
+
+        /* --------------------------------
+           根據玩家選擇建立單字池
+        -------------------------------- */
+
+        if (selectedLevel === "easy") {
+
+            activePool = [...easyWords];
+
+            levelDisplay.textContent = "難度：🟢 簡單";
+
+        }
+
+        else if (selectedLevel === "medium") {
+
+            activePool = [...mediumWords];
+
+            levelDisplay.textContent = "難度：🟡 中等";
+
+        }
+
+        else if (selectedLevel === "hard") {
+
+            activePool = [...hardWords];
+
+            levelDisplay.textContent = "難度：🔴 困難";
+
+        }
+
+
+        /* --------------------------------
+           重設畫面
+        -------------------------------- */
+
+        scoreDisplay.textContent = score;
+
+        timerDisplay.textContent = timeLeft;
+
+        timerBar.style.width = "100%";
+
+        timerBar.style.background = "#55efc4";
+
+        comboDisplay.textContent = "";
+
+        hintBtn.textContent = "提示 (2)";
+
+        hintBtn.disabled = false;
+
+        message.textContent = "";
+
+        reviewBox.style.display = "none";
+
+
+        /* --------------------------------
+           顯示遊戲畫面
+        -------------------------------- */
+
+        levelSelect.style.display = "none";
+
+        gameArea.style.display = "block";
+
+
+        userInput.disabled = false;
+
+        userInput.value = "";
+
+        userInput.focus();
+
+
+        nextQuestion();
+
+
+        /* --------------------------------
+           計時器
+        -------------------------------- */
+
+        if (timerInterval) {
+
+            clearInterval(timerInterval);
+
+        }
+
+
+        timerInterval = setInterval(function() {
+
+            timeLeft--;
+
+            timerDisplay.textContent = timeLeft;
+
+
+            let percentage =
+                (timeLeft / 30) * 100;
+
+            timerBar.style.width =
+                percentage + "%";
+
+
+            if (timeLeft <= 10) {
+
+                timerBar.style.background =
+                    "#ff7675";
+
+            }
+
+
+            if (timeLeft <= 0) {
+
+                endGame();
+
+            }
+
+        }, 1000);
+
+    }
+
+
+    /* ========================================
+       下一題
+    ======================================== */
+
+    function nextQuestion() {
+
+        /*
+         * 如果目前單字全部出完
+         * 就重新把使用過的單字放回去
+         */
+
+        if (activePool.length === 0) {
+
+            activePool = [...usedPool];
+
+            usedPool = [];
+
+        }
+
+
+        const randomIndex =
+            Math.floor(
+                Math.random() * activePool.length
+            );
+
+
+        currentWord =
+            activePool[randomIndex];
+
+
+        activePool.splice(randomIndex, 1);
+
+        usedPool.push(currentWord);
+
+
+        hintLevel = 0;
+
+        hintBtn.textContent = "提示 (2)";
+
+        hintBtn.disabled = false;
+
+
+        if (
+            !practicedWords.some(
+                w => w.english === currentWord.english
+            )
+        ) {
+
+            practicedWords.push(currentWord);
+
+        }
+
+
+        wordDisplay.textContent =
+            currentWord.chinese;
+
+    }
+
+
+    /* ========================================
+       發音
+    ======================================== */
+
+    speakBtn.addEventListener(
+        "click",
+        speakWord
+    );
+
+
+    function speakWord() {
+
+        if (
+            !isPlaying ||
+            !currentWord.english
+        ) {
+
+            return;
+
+        }
+
+
+        const utterance =
+            new SpeechSynthesisUtterance(
+                currentWord.english
+            );
+
+
+        utterance.lang = "en-US";
+
+        utterance.rate = 0.9;
+
+
+        window.speechSynthesis.speak(
+            utterance
+        );
+
+
+        userInput.focus();
+
+    }
+
+
+    /* ========================================
+       提示
+    ======================================== */
+
+    hintBtn.addEventListener(
+        "click",
+        showHint
+    );
+
+
+    function showHint() {
+
+        if (!isPlaying) {
+
+            return;
+
+        }
+
+
+        const word =
+            currentWord.english;
+
+
+        /* 第一階段：顯示部分字母 */
+
+        if (hintLevel === 0) {
+
+            hintLevel = 1;
+
+            let masked = "";
+
+
+            for (
+                let i = 0;
+                i < word.length;
+                i++
+            ) {
+
+                if (
+                    Math.random() > 0.5 ||
+                    i === 0
+                ) {
+
+                    masked += word[i] + " ";
+
+                }
+
+                else {
+
+                    masked += "_ ";
+
+                }
+
+            }
+
+
+            message.style.color =
+                "#fdcb6e";
+
+
+            message.textContent =
+                `提示: ${masked.trim()}`;
+
+
+            hintBtn.textContent =
+                "給答案 (1)";
+
+        }
+
+
+        /* 第二階段：直接填入答案 */
+
+        else if (hintLevel === 1) {
+
+            hintLevel = 2;
+
+            userInput.value = word;
+
+            message.style.color =
+                "#ffeaa7";
+
+            message.textContent =
+                "已自動填入！請按 Enter 鍵繼續。";
+
+            hintBtn.disabled = true;
+
+        }
+
+
+        userInput.focus();
+
+    }
+
+
+    /* ========================================
+       Enter 判斷答案
+    ======================================== */
+
+    userInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (!isPlaying) {
+
+                return;
+
+            }
+
+
+            if (event.key === "Enter") {
+
+                const userVal =
+                    userInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                /* 答對 */
+
+                if (
+                    userVal ===
+                    currentWord.english
+                ) {
+
+                    combo++;
+
+
+                    let earnedPoints =
+                        10 +
+                        (
+                            combo > 1
+                                ? (combo - 1) * 5
+                                : 0
+                        );
+
+
+                    score += earnedPoints;
+
+
+                    scoreDisplay.textContent =
+                        score;
+
+
+                    if (combo > 1) {
+
+                        comboDisplay.textContent =
+                            `連擊 x${combo} (+${earnedPoints})`;
+
+                    }
+
+                    else {
+
+                        comboDisplay.textContent =
+                            "答對了！";
+
+                    }
+
+
+                    userInput.value = "";
+
+
+                    nextQuestion();
+
+                }
+
+
+                /* 答錯 */
+
+                else {
+
+                    combo = 0;
+
+                    comboDisplay.textContent = "";
+
+
+                    message.style.color =
+                        "#ff7675";
+
+
+                    message.textContent =
+                        "拼寫錯誤，再試一次！";
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /* ========================================
+       遊戲結束
+    ======================================== */
+
+    function endGame() {
+
+        isPlaying = false;
+
+
+        clearInterval(timerInterval);
+
+
+        userInput.disabled = true;
+
+        hintBtn.disabled = true;
+
+
+        wordDisplay.textContent =
+            "時間到！";
+
+
+        comboDisplay.textContent = "";
+
+
+        levelDisplay.textContent =
+            "遊戲結束";
+
+
+        timerBar.style.width =
+            "0%";
+
+
+        /* --------------------------------
+           顯示練習過的單字
+        -------------------------------- */
+
+        reviewList.innerHTML = "";
+
+
+        practicedWords.forEach(function(word) {
+
+            let item =
+                document.createElement("div");
+
+
+            item.className =
+                "review-item";
+
+
+            item.innerHTML =
+                `<span>${word.chinese}</span>
+                 <span><b>${word.english}</b></span>`;
+
+
+            reviewList.appendChild(item);
+
+        });
+
+
+        reviewBox.style.display =
+            "block";
+
+
+        /* --------------------------------
+           最高分
+        -------------------------------- */
+
+        if (score > highScore) {
+
+            highScore = score;
+
+
+            localStorage.setItem(
+                "wordPopHighScore",
+                highScore
+            );
+
+
+            highScoreDisplay.textContent =
+                highScore;
+
+
+            message.style.color =
+                "#ffeaa7";
+
+
+            message.textContent =
+                `新高分紀錄：${score}分！`;
+
+        }
+
+        else {
+
+            message.style.color =
+                "#fff";
+
+
+            message.textContent =
+                `總得分：${score}分`;
+
+        }
+
+
+        /*
+         * 遊戲結束後，
+         * 顯示「重新開始」按鈕
+         */
+
+        setTimeout(function() {
+
+            showLevelSelectAfterGame();
+
+        }, 1200);
+
+    }
+
+
+    /* ========================================
+       遊戲結束後回到選關卡
+    ======================================== */
+
+    function showLevelSelectAfterGame() {
+
+        levelSelect.style.display =
+            "block";
+
+        gameArea.style.display =
+            "none";
+
+
+        startBtn.textContent =
+            "再玩一次";
+
+    }
+
+
+    /* ========================================
+       回到關卡選擇
+    ======================================== */
+
+    backBtn.addEventListener(
+        "click",
+        function() {
+
+            if (isPlaying) {
+
+                const confirmLeave =
+                    confirm(
+                        "確定要離開目前遊戲嗎？"
+                    );
+
+
+                if (!confirmLeave) {
+
+                    return;
+
+                }
+
+            }
+
+
+            isPlaying = false;
+
+
+            if (timerInterval) {
+
+                clearInterval(timerInterval);
+
+            }
+
+
+            userInput.disabled = true;
+
+
+            levelSelect.style.display =
+                "block";
+
+            gameArea.style.display =
+                "none";
+
+
+            wordDisplay.textContent =
+                "準備開始";
+
+
+            message.textContent = "";
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

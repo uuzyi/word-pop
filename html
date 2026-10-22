@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南臺科技大學 - 交通資訊與校園地圖</title>
+    <style>
+        :root {
+            --stust-blue: #003865;
+            --tech-cyan: #00A3E0;
+            --bg-gray: #F4F6F9;
+            --text-dark: #2C3E50;
+            --card-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* 導覽列 */
+        header {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--stust-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--tech-cyan);
+        }
+
+        /* 主標題區塊 */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--stust-blue) 0%, #001f3f 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background-color: var(--tech-cyan);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            background-color: #0082b3;
+        }
+
+        .btn-outline {
+            display: inline-block;
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 10px 26px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-outline:hover {
+            background-color: white;
+            color: var(--stust-blue);
+        }
+
+        /* 主內容容器 */
+        .container {
+            max-width: 1200px;
+            margin: -30px auto 50px;
+            padding: 0 20px;
+        }
+
+        /* 交通頁籤卡片 */
+        .tabs-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .tab-headers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            border-bottom: 2px solid #edf2f7;
+            background: #fafafa;
+        }
+
+        .tab-btn {
+            padding: 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #718096;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn .icon {
+            font-size: 28px;
+        }
+
+        .tab-btn.active {
+            color: var(--stust-blue);
+            background: white;
+            border-bottom: 3px solid var(--stust-blue);
+        }
+
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-left: 4px solid var(--stust-blue);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-item h4 {
+            color: var(--stust-blue);
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .info-item p {
+            color: #4a5568;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .link-text {
+            color: var(--tech-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        /* 地圖區域 */
+        .map-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: var(--stust-blue);
+            margin-bottom: 20px;
+            border-left: 5px solid var(--tech-cyan);
+            padding-left: 12px;
+        }
+
+        .map-box {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 10px;
+            height: 420px;
+            overflow: hidden;
+        }
+
+        /* 入口路線指南 */
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .guide-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .guide-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .guide-card h3 {
+            color: var(--stust-blue);
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        .guide-card p {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            color: var(--stust-blue);
+            border: 2px solid var(--stust-blue);
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: var(--stust-blue);
+            color: white;
+        }
+
+        /* 頁尾 */
+        footer {
+            background: var(--stust-blue);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        footer a {
+            color: var(--tech-cyan);
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部導覽列 -->
+    <header>
+        <div class="nav-container">
+            <a href="https://www.stust.edu.tw/" target="_blank" class="logo">
+                🏫 南臺科技大學
+            </a>
+            <ul class="nav-links">
+                <li><a href="https://www.stust.edu.tw/" target="_blank">學校首頁</a></li>
+                <li><a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="active">官方交通資訊</a></li>
+                <li><a href="https://www.stust.edu.tw/tc/node/map" target="_blank">官方校園地圖</a></li>
+                <li><a href="https://general.stust.edu.tw/" target="_blank">總務處</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 主視覺 Banner -->
+    <section class="hero-banner">
+        <div class="hero-content">
+            <h1 class="hero-title">南臺科技大學 交通資訊與校園地圖</h1>
+            <p class="hero-subtitle">地址：710301 台南市永康區南台街一號 ｜ 衛星定位點：23.025474, 120.226568</p>
+            <div class="hero-buttons">
+                <a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="btn-primary">🔗 開啟官方交通指南頁面</a>
+                <a href="https://maps.google.com/?q=南臺科技大學" target="_blank" class="btn-outline">🗺️ Google 地圖導航</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主要內容區 -->
+    <div class="container">
+
+        <!-- 交通方式切換頁籤 -->
+        <div class="tabs-card">
+            <div class="tab-headers">
+                <button class="tab-btn active" onclick="switchTab(event, 'tab1')">
+                    <span class="icon">🚗</span>
+                    自行開車
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab2')">
+                    <span class="icon">🚆</span>
+                    搭乘火車
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab3')">
+                    <span class="icon">🚄</span>
+                    搭乘高鐵
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'tab4')">
+                    <span class="icon">🚌</span>
+                    公車與 YouBike
+                </button>
+            </div>
+
+            <!-- 自行開車內容 -->
+            <div id="tab1" class="tab-content active">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>國道一號永康交流道</h4>
+                        <p>下交流道後往台南市區方向 ➔ 經省道一號 ➔ 於中正南路左轉 ➔ 銜接正南一街 ➔ 直行即可抵達南臺科技大學正門。</p>
+                        <a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="link-text">查看完整開車指南 ➔</a>
+                    </div>
+                    <div class="info-item">
+                        <h4>國道一號仁德交流道</h4>
+                        <p>下交流道往台南市區 ➔ 經東門路 ➔ 於中華路右轉 ➔ 經過奇美醫院 ➔ 於中正南路右轉 ➔ 銜接正南一街 ➔ 抵達學校。</p>
+                        <a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="link-text">查看完整路線說明 ➔</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搭乘火車內容 -->
+            <div id="tab2" class="tab-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>大橋火車站（最佳推薦）</h4>
+                        <p>搭乘台鐵區間車至「大橋車站」下車，由北側出口出站，步行僅需要 2 分鐘（約 150 公尺）即可由第六宿舍邊門進入校園。</p>
+                        <a href="https://www.railway.gov.tw/" target="_blank" class="link-text">查詢台鐵時刻表 ➔</a>
+                    </div>
+                    <div class="info-item">
+                        <h4>台南火車站</h4>
+                        <p>出站後可於前站轉乘市區公車至奇美醫院站，或直接轉搭台鐵區間車北上搭乘一站至大橋車站。</p>
+                        <a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="link-text">查看火車轉乘詳細說明 ➔</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搭乘高鐵內容 -->
+            <div id="tab3" class="tab-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>高鐵轉乘沙崙支線（省時便利）</h4>
+                        <p>高鐵台南站下車 ➔ 步行至台鐵沙崙站 ➔ 搭乘沙崙支線區間車直達「大橋火車站」 ➔ 步行 150 公尺入校。</p>
+                        <a href="https://www.thsrc.com.tw/" target="_blank" class="link-text">前往台灣高鐵官網 ➔</a>
+                    </div>
+                    <div class="info-item">
+                        <h4>高鐵快捷公車</h4>
+                        <p>搭乘快捷公車 H62 路線 ➔ 於「奇美醫院站」下車 ➔ 步行約 500 公尺即可抵達學校校門。</p>
+                        <a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="link-text">查看高鐵接駁資訊 ➔</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 公車與 YouBike 內容 -->
+            <div id="tab4" class="tab-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>直達校內市區公車</h4>
+                        <p>搭乘台南市區公車 15 路或 21 路可直接駛入校園（停靠站牌設於校內 T 棟大樓前方）。</p>
+                        <a href="https://2384.tainan.gov.tw/" target="_blank" class="link-text">查詢台南大台南公車動態 ➔</a>
+                    </div>
+                    <div class="info-item">
+                        <h4>YouBike 微型公共自行車</h4>
+                        <p>第三宿舍外設有 YouBike 租賃站點（位於南台街 75 巷口），還車後步行 190 公尺即可入校。</p>
+                        <a href="https://www.youbike.com.tw/region/tainan/" target="_blank" class="link-text">查詢台南 YouBike 站點 ➔</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 地圖區域 -->
+        <h2 class="section-title">校園周邊 Google 互動地圖</h2>
+        <div class="map-section">
+            <div class="map-box">
+                <iframe src="https://maps.google.com/maps?q=南臺科技大學&t=&z=16&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+
+        <!-- 校園入口指南下載卡片 -->
+        <h2 class="section-title">校園入口指南與地圖下載</h2>
+        <div class="guide-grid">
+            <div class="guide-card">
+                <h3>官方完整校園地圖</h3>
+                <p>包含校區各大樓位置、行政單位分佈、圖書館及運動場館之平面空間總覽圖。</p>
+                <a href="https://www.stust.edu.tw/tc/node/map" target="_blank" class="download-btn">前往下載平面圖</a>
+            </div>
+            <div class="guide-card">
+                <h3>訪客汽車與動線指南</h3>
+                <p>開車訪客請由「正南一街校門口」進入，於守衛室辦理登記換證後停放於訪客專用停車場。</p>
+                <a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="download-btn">查看汽車動線</a>
+            </div>
+            <div class="guide-card">
+                <h3>機車與行人入口指南</h3>
+                <p>提供教職員及學生機車動線與地下停車場入口指引；行人可由大橋車站邊門入校。</p>
+                <a href="https://www.stust.edu.tw/tc/node/traffic" target="_blank" class="download-btn">查看機車動線</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 頁尾 -->
+    <footer>
+        <p>南臺科技大學 版權所有 ｜ 校址：710301 台南市永康區南台街一號 ｜ 電話：06-2533131</p>
+        <p style="margin-top: 5px;"><a href="https://www.stust.edu.tw/" target="_blank">點此前往 南臺科技大學 官方網站</a></p>
+    </footer>
+
+    <!-- 頁籤切換腳本 -->
+    <script>
+        function switchTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
